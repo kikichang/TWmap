@@ -1,0 +1,104 @@
+用R繪製台灣地圖(更新：160831)
+
+簡介:
+	繪製台灣本島之(1)鄉鎮市區 (2)縣市 (3)全台的面量圖(choropleth map)(以2015.12公佈之行政區為準)。
+	有單色與雙色之分，一般以單色繪製即可，若數值以基準(origin)有兩個正反之方向時，可選用雙色繪製。
+檔案:
+	R files
+		functions are defined in map.R
+		variables are stored in villageMapVars.RData, townMapVars.RData, countyMapVars.RData
+		drivers: villageMapDriver.R, countyMapDriver.R, townMapDriver.R
+		wrapped functions: villageMapGenerator.R, countyMapGenerator.R, (TODO: townMapGenerator.R)
+	範例
+		中山區綠營得票率.xlsx, 中山區藍營得票率.xlsx, 中山區藍綠得票率差.xlsx (data provided by 陳勃文/思維策略)
+		village_test.xlsx, town_test.xlsx, county_test.xlsx, and Workbook 8.xlsx
+	交通部地圖原始檔
+		Downloaded from http://data.gov.tw/node/7438
+	圖檔(provided by 交通部)
+		Village_NLSC_1050219.dbf/prj/shp/shx
+方法:
+	有兩種介面
+		(1)interactive(driver): user enter parameters in the console (使用 xxMapDriver.R)
+		(2)wrapped function: user enter all parameters in a wrapped function (使用xxMapGenerator.R)
+使用範例:
+	(1)interactive:
+	In Studio’s console, type
+		rm(list=ls())   //清除workspace中的functions & variables
+		source(“/file/path/villageDriver.R") //完成繪圖並儲存SVG檔
+
+	(2)wrapped function: 
+	In RStudio’s console, type
+		rm(list=ls()) //清除workspace中的functions & variables
+		source('/file/path/villageMapGenerator.R')//此步驟同時會輸入所需functions and variables
+		filePath <- file.choose()
+		villageMapGenerator(filePath, "臺北市", "中山區", "4 3", 7, 0.2, 0.1) //完成繪圖並儲存SVG檔
+	(詳細請見下方各地圖的說明)
+附註:
+	可讀取(.xslx or .csv)的資料檔; 使用xlsx檔時，須將資料存在第一頁面(sheet)
+	使用Windows時，需先確定Studio的Encoding為UTF-8,再開啟R檔以避免亂碼
+		可由File ->Reopen with encoding (change to UTF-8)進行更動
+	圖檔名預設為資料檔名;預設儲存在map.R所在的資料夾
+	此程式尚不適用於離島地區
+	鄉鎮市區地名有疑義時，請見 交通部地圖原始檔->全台各鄉鎮市區地名UTF-8.xlsx
+	2015.12 桃園縣市、高雄縣市、台南縣市、台中縣市合併為桃園市、高雄市、台南市、台中市; 台北縣更名為新北市
+	Further details of each type of maps are stated below; for all other questions regarding usage of "用R繪製台灣地圖", please email ychang64@jhu.edu
+
+——————————————(1)鄉鎮市區(villageMap)—————————————
+繪製台灣一縣市之一鄉鎮市區各村里之面量圖（不含離島）;單色或雙色
+預設:圖標為“得票率”; 數值顯示百分比(%); 顯示各村里名
+
+資料格式範例
+#         col1      col2         
+# row 1   村里名    得票率
+# row 2   中正里    0.3
+#   ...
+# row n   幸福里    0.7
+#
+#row 1 should be column name; must not contain data (can be anything)
+
+資料範例 village_test.xlsx
+函數範例 
+# filePath <- file.choose() #可使用file.choose()選擇檔案或直接輸入資料檔的full path
+# villageMapGenerator(filePath, "臺北市", "中山區", "4 3", 7, 0.2, 0.1)
+
+———————————————-(2)縣市(townMap)————————————————-
+
+繪製台灣 1.一縣市 或 2.全台鄉鎮市區之面量圖（不含離島);單色或雙色
+預設:圖標為“得票率”; 數值顯示百分比(%); 顯示各村里名
+繪製全台鄉鎮市區(~300多個)，地圖預設不顯示個鄉鎮市區名;若繪製某縣市各鄉鎮市區則預設標註鄉鎮市區名
+
+資料格式範例
+#         col1      col2        col3         
+# row 1   縣市名   鄉鎮市區名      得票率     
+# row 2   臺北市   中山區          0.3
+#   ...
+# row n   臺北市   中正區          0.7
+#
+#row 1 should be column name; must not contain data (can be anything)
+
+資料範例 town_test.xlsx
+函數範例 
+# filePath <- file.choose()  #可使用file.choose()選擇檔案或直接輸入資料檔的full path
+townMapGenerator(filePath, "台北市", "3 4", 6, 30, 60, FALSE, "指數")
+townMapGenerator(filePath, "全台", "3 4", 6, 180, 150, FALSE,"指數")
+
+———————————————-(3)全台(countyMap)————————————————-
+
+繪製全台各縣市之面量圖（不含離島);單色或雙色
+預設:圖標為“得票率”; 數值顯示百分比(%); 顯示各縣市名 (TODO:嘉義縣、新北市在圖上位置要修正)
+
+資料格式範例
+#         col1      col2         
+# row 1   縣市名    得票率
+# row 2   臺北市    0.3
+#   ...
+# row n   臺南市    0.7
+#
+#row 1 should be column name; must not contain data (can be anything)
+
+資料範例 county_test.xlsx
+函數範例
+# filePath <- file.choose() #可使用file.choose()選擇檔案或直接輸入資料檔的full path
+# countyMapGenerator(filePath,"2", 6, 160, 0, percent = FALSE)
+# countyMapGenerator(filePath,"2", 6, 160, 0, percent = FALSE, legend = "指數", extension = ".png", text = 5)
+

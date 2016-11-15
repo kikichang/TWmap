@@ -1,0 +1,17 @@
+{
+    "contents" : "#villageMapVars.R\n#160816\n#Kiki Chang(ychang64@jhu.edu)\n#This file contains data and variables used in graphing village(村里) map.\n#The map is provided by Ministry of Transportation (src: http://data.gov.tw/node/7438 )\n#NOTE: 台北、台中、台南須為大寫（臺北、臺中、臺南)\n#NOTE: workspace must be cleared [ -> rm(list=ls()) on the console]  before running this program.\n#----------------------------------------------------------------------------#\ndir <- dirname(parent.frame(2)$ofile)\nsetwd(dir)\n\nlibrary(maptools)\ngpclibPermit()\n\n\nmyMap = readShapePoly(\"Village_NLSC_1050219\")\nmyMap$V_Name <- iconv(myMap$V_Name, \"big5\", \"utf8\")  #村\nmyMap$T_Name <- iconv(myMap$T_Name, \"big5\", \"utf8\")  #區\nmyMap$C_Name <- iconv(myMap$C_Name, \"big5\", \"utf8\")  #縣市\nmyMap$Substitute <- iconv(myMap$Substitute, \"big5\", \"utf8\")\n\n\nallNames <- data.frame(myMap$T_Name, myMap$C_Name, stringsAsFactors = FALSE)\nallDstQ <- c()\n\n#all counties\nctyNames <- unique(myMap$C_Name)\nctyNamesLen <- c(1: length(ctyNames))\ndf <- data.frame(ctyNames, ctyNamesLen, stringsAsFactors = FALSE)\ndf$combined <- paste(df$ctyNamesLen, df$ctyNames)\nctyQ <- paste (df$combined, collapse = \" \")\n\n#all districts \nfor(i in 1:length(ctyNames)) {\n  dst <- subset(allNames, (allNames$myMap.C_Name == df$ctyNames[i]))\n  dstNames <- unique(dst$myMap.T_Name)\n  dstNamesLen <- c(1:length(dstNames))\n  dstDf <- data.frame(dstNamesLen, dstNames, stringsAsFactors = FALSE)\n  dstDf$combined <- paste(dstDf$dstNamesLen, dstDf$dstNames)\n  dstQ <- paste(dstDf$combined, collapse = \" \")\n  allDstQ[i] <- dstQ\n}\n\nsave.image(\"villageMapVars.RData\")\n\nmessage(\"end of file\")",
+    "created" : 1472584882670.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "70440386",
+    "id" : "BC99FD22",
+    "lastKnownWriteTime" : 1472585040,
+    "path" : "~/Dropbox/Kiki-project/villageMapVars.R",
+    "project_path" : "villageMapVars.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
